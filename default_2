@@ -1,6 +1,6 @@
 server {
         server_name domain.tld;
- 
+
         root /var/www/codeignitor;
         index index.html index.php;
 

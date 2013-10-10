@@ -1,0 +1,35 @@
+server {
+    listen        80;
+    server_name    dzenless.com;
+    charset        utf-8;
+    gzip        on;
+    ssi         off;
+
+    #error_log        /var/log/nginx/test.server.ru.error.log info;
+    #access_log        /var/log/nginx/test.server.ru.access.log;
+
+    root            /usr/share/nginx/www;
+
+    location    @phpfcgi {
+        internal;
+        fastcgi_buffers 16 16k;
+        fastcgi_pass    unix:/tmp/phpfcgi.sock;
+        include        /etc/nginx/fastcgi_params;
+        fastcgi_index    index.php;
+        fastcgi_param   REQUEST_URI    /index.php$request_uri;
+        fastcgi_param    SCRIPT_NAME    /index.php;
+        fastcgi_param    SCRIPT_FILENAME /usr/share/nginx/www/index.php;
+        }
+
+    location     ~ \.(php|php/.*)$ {
+        fastcgi_buffers 16 16k;
+        fastcgi_pass    unix:/tmp/phpfcgi.sock;
+        include        /etc/nginx/fastcgi_params;
+        fastcgi_param    SCRIPT_FILENAME    /usr/share/nginx/www$fastcgi_script_name;
+        }
+
+    location / {
+        error_page    404 = @phpfcgi;
+        index    index.php;
+        }
+}
