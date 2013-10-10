@@ -1,0 +1,47 @@
+server {
+   listen 192.241.246.241:80;
+   server_name dzenless.com;
+
+   charset utf-8;
+
+   #access_log  logs/www.access.log main;
+
+   root   /usr/share/nginx/www;
+
+   location = / {
+       rewrite ^ /index.php/ last;
+   }
+
+   location = /index.php {
+       rewrite ^ /index.php/ last;
+   }
+
+   location / {
+       try_files $uri /index.php$uri;
+   }
+
+   location /index.php {
+      internal;
+      root /usr/share/nginx/www;
+      fastcgi_pass backend;
+      fastcgi_index index.php;
+      fastcgi_ignore_client_abort off;
+      fastcgi_buffers 300 5K;
+      fastcgi_split_path_info         ^(.+\.php)(.*)$;
+      fastcgi_param  SCRIPT_FILENAME  $fastcgi_script_name;
+      fastcgi_param  PATH_INFO        $fastcgi_path_info;
+      include   fastcgi_params;
+   }
+
+   location ~* \.php$ {
+      root /usr/share/nginx/www;
+      fastcgi_pass backend;
+      fastcgi_index index.php;
+      fastcgi_ignore_client_abort off;
+      fastcgi_split_path_info         ^(.+\.php)(.*)$;
+      fastcgi_param  SCRIPT_FILENAME  $fastcgi_script_name;
+      fastcgi_param  PATH_INFO        $fastcgi_path_info;
+      fastcgi_buffers 300 5K;
+      include   fastcgi_params;
+   }
+}
